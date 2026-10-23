@@ -20,7 +20,6 @@ import (
 )
 
 const (
-	listenAddr = ":8080"
 	loginPath  = "/__gateway/login"
 	logoutPath = "/__gateway/logout"
 	cookieName = "gateway_session"
@@ -153,6 +152,10 @@ func main() {
 	if password == "" || err != nil || target.Scheme == "" || target.Host == "" {
 		log.Fatal("PASSWORD and TARGET_URL (e.g. http://firefox:3000) must be set")
 	}
-	log.Printf("listening on %s, proxying to %s", listenAddr, target)
-	log.Fatal(http.ListenAndServe(listenAddr, newGateway(password, target)))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("listening on :%s, proxying to %s", port, target)
+	log.Fatal(http.ListenAndServe(":"+port, newGateway(password, target)))
 }

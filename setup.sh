@@ -13,7 +13,8 @@ ask NAME "Container name" "login-gateway"
 ask IMAGE "Image tag" "login-gateway:latest"
 ask TARGET_URL "Upstream URL" "http://firefox:3000"
 ask NETWORK "Docker network shared with upstream and proxy (empty = default bridge)" ""
-ask HOST_PORT "Host port to publish (empty = do not publish)" ""
+ask PORT "Port" "8080"
+ask PUBLISH "Publish port to host? [y/N]" "N"
 
 while :; do
   read -rsp "Password: " PASSWORD; echo
@@ -21,7 +22,7 @@ while :; do
   [[ -n "$PASSWORD" && "$PASSWORD" == "$CONFIRM" ]] && break
   echo "Passwords are empty or do not match, try again."
 done
-export PASSWORD TARGET_URL
+export PASSWORD TARGET_URL PORT
 
 docker build -t "$IMAGE" .
 
@@ -31,9 +32,9 @@ if docker ps -a --format '{{.Names}}' | grep -qx "$NAME"; then
   docker rm -f "$NAME" >/dev/null
 fi
 
-args=(-d --name "$NAME" --restart unless-stopped -e PASSWORD -e TARGET_URL)
+args=(-d --name "$NAME" --restart unless-stopped -e PASSWORD -e TARGET_URL -e PORT)
 [[ -n "$NETWORK" ]] && args+=(--network "$NETWORK")
-[[ -n "$HOST_PORT" ]] && args+=(-p "$HOST_PORT:8080")
+[[ "$PUBLISH" =~ ^[Yy]$ ]] && args+=(-p "$PORT:$PORT")
 
 docker run "${args[@]}" "$IMAGE"
-echo "Started '$NAME'. Point Nginx Proxy Manager to http://$NAME:8080 (enable WebSockets Support)."
+echo "Started '$NAME'. Point Nginx Proxy Manager to http://$NAME:$PORT (enable WebSockets Support)."

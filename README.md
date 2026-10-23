@@ -8,8 +8,7 @@
 |---|---|---|
 | `PASSWORD` | 係 | 登入密碼 |
 | `TARGET_URL` | 係 | 上游地址，例如 `http://firefox:3000` |
-
-Gateway 固定 listen `8080`。
+| `PORT` | 唔係 | Gateway listen 嘅 port，預設 `8080` |
 
 ## 快速開始
 
@@ -17,12 +16,12 @@ Gateway 固定 listen `8080`。
 ./setup.sh
 ```
 
-Script 會逐項問你 container 名、上游 URL、docker network、host port 同密碼，然後 build image 同開 container。如果同名 container 已經存在，會先問你係咪要換。
+Script 會逐項問你 container 名、上游 URL、docker network、port、要唔要 publish 出 host，同埋密碼，然後 build image 同開 container。如果同名 container 已經存在，會先問你係咪要換。
 
 ## 配合 Nginx Proxy Manager
 
 1. Gateway、Firefox、NPM 放喺同一個 docker network
-2. NPM Proxy Host 指去 `http://<container 名>:8080`，**記得剔 "Websockets Support"**
+2. NPM Proxy Host 指去 `http://<container 名>:<PORT>`，**記得剔 "Websockets Support"**
 3. Firefox container **唔好 publish port** 出 host，否則可以繞過登入
 4. Firefox 嘅 `CUSTOM_USER` / `PASSWORD` 可以唔設，免得要登入兩次
 5. `TARGET_URL` 用 Firefox 嘅 HTTP port `3000`（`3001` 係自簽 HTTPS，gateway 唔會接受）
